@@ -1,14 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-function QuestionForm(props) {
+function QuestionForm({questions, setQuestions}) {
   const [formData, setFormData] = useState({
     prompt: "",
-    answer1: "",
-    answer2: "",
-    answer3: "",
-    answer4: "",
+    answer1: '',
+    answer2: '',
+    answer3: '',
+    answer4: '',
     correctIndex: 0,
   });
+
+  let newFormData = {}
+
+  useEffect(() => {
+    newFormData = {
+      prompt: formData.prompt,
+      answers: [
+        formData.answer1,
+        formData.answer2,
+        formData.answer3,
+        formData.answer4
+      ],
+      correctIndex: parseInt(formData.correctIndex)
+    }
+  }, [formData])
 
   function handleChange(event) {
     setFormData({
@@ -18,8 +33,15 @@ function QuestionForm(props) {
   }
 
   function handleSubmit(event) {
-    event.preventDefault();
-    console.log(formData);
+    event.preventDefault()
+    console.log(newFormData)
+    fetch('http://localhost:4000/questions', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json' },
+      body: JSON.stringify(newFormData)
+    })
+    .then((r) => r.json())
+    .then((newQuestions) => setQuestions([...questions, newQuestions]))
   }
 
   return (
